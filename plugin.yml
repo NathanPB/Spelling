@@ -1,0 +1,13 @@
+name: Spelling
+author: NathanPB
+version: 2.1
+main: me.nathanpb.Spelling.Spelling
+
+commands:
+ Spelling:
+  description: Spelling main command
+  usage: /spelling <cheat|recipes>
+
+ Mana:
+  description: Thinks about mana
+  usage: /mana (<definit|ver>)
