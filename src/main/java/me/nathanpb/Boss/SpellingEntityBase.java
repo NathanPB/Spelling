@@ -1,6 +1,8 @@
 package me.nathanpb.Boss;
 
+import net.minecraft.server.v1_11_R1.EntityInsentient;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -58,6 +60,12 @@ public class SpellingEntityBase {
     public boolean isAITrue(){
         return this.AIActivated;
     }
+    public double getMaxSpeed(){
+        return this.maxSpeed;
+    }
+    public LivingEntity getEntity(){
+        return this.entity;
+    }
 
     //SETTERS
     public void setHealth(double health){
@@ -71,5 +79,13 @@ public class SpellingEntityBase {
     }
     public void setAI(boolean ai){
         this.AIActivated = ai;
+    }
+    public void setMaxSpeed(double maxSpeed){
+        this.maxSpeed = maxSpeed;
+    }
+
+    //UTIL
+    public void goTo(Location loc){
+        ((EntityInsentient) ((CraftEntity) this.entity).getHandle()).getNavigation().a(loc.getX(), loc.getY(), loc.getZ(), getMaxSpeed());
     }
 }
