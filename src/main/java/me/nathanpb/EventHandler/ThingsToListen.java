@@ -1,30 +1,26 @@
 package me.nathanpb.EventHandler;
 
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Snowball;
+import me.nathanpb.Spell.MagicBreaker;
+import me.nathanpb.Spelling.Spelling;
+import org.bukkit.*;
+import org.bukkit.entity.*;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.util.Vector;
 
-import me.nathanpb.Spell.MagicBreaker;
-import me.nathanpb.Spelling.Spelling;
+import java.util.UUID;
+
 public class ThingsToListen implements Listener{
 	private Spelling plugin;
 	public ThingsToListen(Spelling plugin){
@@ -41,8 +37,8 @@ public class ThingsToListen implements Listener{
 			if(p.getInventory().getItemInHand().getItemMeta().getDisplayName().equals(
 					ChatColor.GOLD+"Levitator")){
 				if(event.getCause() == DamageCause.FALL){
-					int coust = 20;
-					if(!me.nathanpb.EventHandler.ManaMananger.CanUseSpell(p, coust, 0, true)){
+					int cost = 20;
+					if(!me.nathanpb.EventHandler.ManaMananger.CanUseSpell(p, cost)){
 						return;
 					}
 					event.setCancelled(true);
@@ -87,9 +83,12 @@ public class ThingsToListen implements Listener{
 	}
 	@EventHandler
 	public static void interactEvent(PlayerInteractEvent e){
-		if(e.getAction().equals(Action.LEFT_CLICK_BLOCK)){
-			if(e.getItem().equals(new MagicBreaker().getSpellItem())){
-				if(ManaMananger.CanUseSpell(e.getPlayer(), 3, 0, true)){
+		if(e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+			if (e.getItem() == null) {
+				return;
+			}
+			if (e.getItem().equals(new MagicBreaker().getSpellItem())) {
+				if (ManaMananger.CanUseSpell(e.getPlayer(), 3)) {
 					e.getClickedBlock().breakNaturally();
 				}
 				e.setCancelled(true);
@@ -113,4 +112,14 @@ public class ThingsToListen implements Listener{
 			
 		}
 	}
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public static void ehbhe(EntityDamageByEntityEvent e){
+		if(e.getDamager() instanceof  Player){
+			if(e.getEntity() instanceof Monster){
+				int amount = (int)Math.round(e.getDamage());
+				ManaMananger.addMana(e.getDamager().getUniqueId(), amount);
+			}
+		}
+	}
+
 }
