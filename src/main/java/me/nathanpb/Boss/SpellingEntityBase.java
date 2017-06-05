@@ -27,6 +27,7 @@ public class SpellingEntityBase {
         this.maxHealth = maxHealth;
         this.maxSpeed = maxSpeed;
         this.type = type;
+        setupAI();
     }
     public void spawn(Location spawnLocation){
         this.spawnLocation = spawnLocation;
@@ -97,7 +98,7 @@ public class SpellingEntityBase {
         ((EntityInsentient) ((CraftEntity) this.entity).getHandle()).getNavigation().a(loc.getX(), loc.getY(), loc.getZ(), getMaxSpeed());
     }
 
-    public void setupAI(){
+    private void setupAI(){
         if(this.AI != null){
             if(isAITrue()){
                 AI.run();
