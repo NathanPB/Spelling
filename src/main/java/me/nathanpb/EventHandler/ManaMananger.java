@@ -1,259 +1,351 @@
 package me.nathanpb.EventHandler;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.lang.Math;
-
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-
+import me.nathanpb.ProjectMetadata.ProjectMetadataObject;
+import me.nathanpb.Spell.Spell;
+import me.nathanpb.Spell.SpellTrigger;
+import me.nathanpb.SpellBook.Utils;
 import me.nathanpb.Spelling.Spelling;
 import net.minecraft.server.v1_11_R1.IChatBaseComponent;
-import net.minecraft.server.v1_11_R1.ItemStack;
-import net.minecraft.server.v1_11_R1.Items;
 import net.minecraft.server.v1_11_R1.PacketPlayOutChat;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class ManaMananger implements Listener{
-	private final me.nathanpb.Spelling.Spelling plugin;
-	public ManaMananger(me.nathanpb.Spelling.Spelling plugin){this.plugin = plugin;}
-	public static boolean CancelAddMana = false;
-	static Spelling spelling = me.nathanpb.Spelling.Spelling.getSpelling();
-	static List<Player> TaskActivated = new ArrayList<Player>();
-	@EventHandler
-	public static void OnPlayerJoin(PlayerJoinEvent event){
-		int mana = me.nathanpb.Spelling.Mana.ReadFile(event.getPlayer().getName(), "Mana");
-		int usedmana = me.nathanpb.Spelling.Mana.ReadFile(event.getPlayer().getName(), "UsedMana");
-		me.nathanpb.Spelling.Mana.mana.put(event.getPlayer(), mana);
-		me.nathanpb.Spelling.Mana.UsedMana.put(event.getPlayer(), usedmana);
-		me.nathanpb.Selfs.SelfMananger.LoadSelfs(event.getPlayer());
-		Bukkit.getServer().getLogger().info("Loaded mana from "+event.getPlayer().getName()+
-				"("+mana+", level +"+GetLevel(event.getPlayer())+")");
-		event.getPlayer().sendMessage(ChatColor.BLUE+"Atualmente você tem "+
-		ChatColor.GOLD+me.nathanpb.Spelling.Mana.mana.get(event.getPlayer())+ChatColor.BLUE+
-		" pontos de mana e se encontra no nível "+ChatColor.GOLD+GetLevel(event.getPlayer()));
-	}
-	@EventHandler
-	public static void OnPlayerQuit(PlayerQuitEvent event){
-		int mana = me.nathanpb.Spelling.Mana.mana.get(event.getPlayer());
-		int usedMana = me.nathanpb.Spelling.Mana.UsedMana.get(event.getPlayer());
-		me.nathanpb.Spelling.Mana.WriteFile(event.getPlayer().getName(), "UsedMana", String.valueOf(usedMana));
-		me.nathanpb.Spelling.Mana.WriteFile(event.getPlayer().getName(), "Mana", String.valueOf(mana));
-		me.nathanpb.Selfs.SelfMananger.SaveSelfs(event.getPlayer(), me.nathanpb.Selfs.SelfMananger.GetSelfs(event.getPlayer()));
-		Bukkit.getServer().getLogger().info("Saved mana from "+event.getPlayer().getName()+"("+mana+", level +"+GetLevel(event.getPlayer())+")");
-	}
-	public static void SaveManaOnDisable(){
-		
-		for(Map.Entry<Player, Integer> pair : me.nathanpb.Spelling.Mana.mana.entrySet()){
-			Player key = pair.getKey();;
-			me.nathanpb.Spelling.Mana.WriteFile(key.getName(), "Mana", String.valueOf(pair.getValue()));
-			me.nathanpb.Spelling.Mana.WriteFile(key.getName(), "UsedMana", String.valueOf(GetUsedMana(pair.getKey())));
-			me.nathanpb.Selfs.SelfMananger.SaveSelfs(pair.getKey(), me.nathanpb.Selfs.SelfMananger.GetSelfs(pair.getKey()));
-			Bukkit.getServer().getLogger().info("Saved mana from "+key.getName()+"("+pair.getValue()+", level +"+GetLevel(key)+")");
-		}
-	}
-	public static void LoadManaOnEnable(){
-		for(Player player : Bukkit.getOnlinePlayers()){
-			int mana = me.nathanpb.Spelling.Mana.ReadFile(player.getName(), "Mana");
-			me.nathanpb.Spelling.Mana.mana.put(player, mana);
-			int UsedMana = me.nathanpb.Spelling.Mana.ReadFile(player.getName(), "UsedMana");
-			me.nathanpb.Spelling.Mana.UsedMana.put(player, UsedMana);
-			me.nathanpb.Selfs.SelfMananger.LoadSelfs(player);
-			Bukkit.getServer().getLogger().info("Loaded mana from "+player.getName()+"("+mana+", level +"+GetLevel(player)+")");
-			player.sendMessage(ChatColor.BLUE+"Atualmente você tem "+
-			ChatColor.GOLD+me.nathanpb.Spelling.Mana.mana.get(player)+ChatColor.BLUE+" pontos de mana e se encontra no nível "+GetLevel(player));
-		}
-	}
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public static void OnDamage(EntityDamageByEntityEvent event){
-		if(!(event.getDamager() instanceof Player)){
-			return;
-		}
-		if(!(event.getEntity() instanceof Monster)){
-			return;
-		}
-		if(CancelAddMana){
-			CancelAddMana = false;
-			return;
-		}
-		Player damager = (Player)event.getDamager();
-		AddMana(damager, (int)Math.round(event.getDamage()));
-	}
-	public static void AddMana(Player player, int mana){
-		int atual = me.nathanpb.Spelling.Mana.mana.get(player);
-		me.nathanpb.Spelling.Mana.mana.put(player, atual+mana);
-	}
-	public static void DecraseMana(Player player, int mana){
-		int atual = me.nathanpb.Spelling.Mana.mana.get(player);
-		me.nathanpb.Spelling.Mana.mana.put(player, atual-mana);
-	}	
-	public static int GetMana(Player player){
-		return me.nathanpb.Spelling.Mana.mana.get(player);
-	}
-	public static int GetLevel(Player player){
-		int usedMana = me.nathanpb.Spelling.Mana.UsedMana.get(player);
-		int level = usedMana/10000;
-		return level;
-	}
-	public static String GetProgression(Player player){
-		int next = (GetLevel(player)*10000)*2;
-		int current = GetUsedMana(player);
-		if(GetLevel(player) == 0){
-			next = 10000;
-		}
-		int percent = (current*100)/next;
-		String frase = ChatColor.BLUE+"Sua progressão: "+ChatColor.GOLD+current+
-				ChatColor.BLUE+"/"+ChatColor.GOLD+next+ChatColor.BLUE+"("+ChatColor.GOLD+percent+ChatColor.BLUE+"%)";
-		return frase;
-	}
-	public static int GetUsedMana(Player player){
-		return me.nathanpb.Spelling.Mana.UsedMana.get(player);
-	}
-	public static void SetLevel(Player player, int level){
-		int value = level*10000;
-		me.nathanpb.Spelling.Mana.WriteFile(player.getName(), "UsedMana", String.valueOf(value));
-	}
-	public static void SetUsedMana(Player player, int mana){
-		me.nathanpb.Spelling.Mana.WriteFile(player.getName(), "UsedMana", String.valueOf(mana));
-	}
-	public static void SetMana(Player player, int mana){
-		me.nathanpb.Spelling.Mana.mana.put(player, mana);
-	}
-	public static void AddUsedMana(Player player, int mana){
-			
-		int atual = me.nathanpb.Spelling.Mana.UsedMana.get(player);
-		me.nathanpb.Spelling.Mana.UsedMana.put(player, atual+mana);
-	}
-	public static boolean CanUseSpell(Player player, int coust, int cooldown, boolean affectedByCooldown){
-		int mana = me.nathanpb.EventHandler.ManaMananger.GetMana(player);
-		boolean AllowBurnout = me.nathanpb.Spelling.ConfigMananger.GetConfigBooleans("AllowBurnout");
-		boolean AllowMana = me.nathanpb.Spelling.ConfigMananger.GetConfigBooleans("AllowMana");
-		boolean ShowManaOnUse = me.nathanpb.Spelling.ConfigMananger.GetConfigBooleans("ShowManaOnUse");
-		int level = GetLevel(player);
-		
-		//BURNOUT CHECK
-		if(AllowBurnout){
-			if(AffectedByBurnout(player) && affectedByCooldown){
-					player.sendTitle(ChatColor.DARK_RED+"Seu burnout está alto!", ChatColor.GOLD+""+GetBurnoutPercent(player)+"%");
-					return false;
-			}
-		}
-		
-		//MANA CHECK
-		if(AllowMana){
-			if(mana < coust){
-				player.sendMessage(ChatColor.RED+"Você não tem mana o suficiente para usar este spell :c");
-				player.sendMessage(ChatColor.BLUE+"Custo: "+ChatColor.GOLD+coust);
-				return false;
-			}
-			me.nathanpb.EventHandler.ManaMananger.DecraseMana(player, coust);
-			me.nathanpb.EventHandler.ManaMananger.AddUsedMana(player, coust);
-		}
+	private static int levelMultiplier = 1000;
 
-		if(level < GetLevel(player)){
-			player.sendTitle(ChatColor.GREEN+"Level Up!", ChatColor.BLUE+"De "+ChatColor.GOLD+
-					level+ChatColor.BLUE+" para "+ChatColor.GOLD+GetLevel(player));
+	public static List<UUID> burnoutDelay = new ArrayList<>();
+	public static boolean CanUseSpell(Player p, int cost){
+		UUID uuid = p.getUniqueId();
+		if(burnoutDelay.contains(uuid)){
+			p.sendTitle(ChatColor.RED+"Burnot too high!", ChatColor.GOLD+""+getBurnout(uuid)+ChatColor.BLUE+"/"+ChatColor.GOLD+getMaxBurnout(uuid));
+			return false;
 		}
-		
-		if(AllowBurnout){
-			AddBurnout(player, coust);
-			StartDecrementBurnout(player);
+		if(getMana(uuid) >= cost){
+			setMana(uuid, getMana(uuid)-cost);
+			addExp(uuid, cost);
+			addBurnout(uuid, cost);
+			return true;
 		}
-		if(ShowManaOnUse){
-			SendManaPacket(player);
-		}
-		return true;
+		p.sendTitle(ChatColor.RED+"No Mana!","");
+		return false;
 	}
-	public static void SendManaPacket(Player player){
-		String progressao = GetProgression(player);
-		progressao = progressao.replace("Sua progressão: ", "Progressão: ");
-		progressao = progressao.replace(""+GetUsedMana(player), "");
-		progressao = progressao.replace(""+(GetLevel(player)*10000)*2, "");
-		progressao = progressao.replace("(", "");
-		progressao = progressao.replace(")","");
-		progressao = progressao.replace("/","");
-		progressao = progressao.replace(ChatColor.BLUE+"%","");
-		String msg = ChatColor.BLUE+"Mana: "+ChatColor.GOLD+GetMana(player)+ChatColor.BLUE+"   Nível: "+
-				ChatColor.GOLD+GetLevel(player)+"   "+progressao+"%"+ChatColor.BLUE+"   Burnout: "+ChatColor.GOLD+GetBurnoutPercent(player)+"%";
-		sendActionbar(player, msg);
-	}
-	public static void sendActionbar(Player p, String message) {
-        IChatBaseComponent icbc = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" +
-                ChatColor.translateAlternateColorCodes('&', message) + "\"}");
-        PacketPlayOutChat bar = new PacketPlayOutChat(icbc, (byte)2);
-            ((CraftPlayer)p).getHandle().playerConnection.sendPacket(bar);
-    }
-	public static int GetMaxBurnout(Player player){
-		if(GetLevel(player)==0){
-			return 100;
+
+	public static void mkProfile(UUID uuid){
+		try {
+			ProjectMetadataObject o = new ProjectMetadataObject(uuid);
+			if(!o.hasKey("mana")){
+                o.put("mana", 0);
+			}
+			if(!o.hasKey("selfs")){
+				o.put("selfs", new ArrayList<String>());
+			}
+			if(!o.hasKey("active_selfs")){
+				o.put("active_selfs", new ArrayList<String>());
+			}
+			if(!o.hasKey("exp")){
+				o.put("exp", 0);
+			}
+			if(!o.hasKey("burnout")){
+				o.put("burnout", 0);
+			}
+			if(!o.hasKey("level")){
+				o.put("level", 0);
+			}
+		}catch (Exception e){
+			e.printStackTrace();
 		}
-		return GetLevel(player)*100;
 	}
-	public static void AddBurnout(Player player, int burnout){
-		me.nathanpb.Spelling.Mana.Burnout.put(player, GetCurrentBurnout(player)+burnout);
-	}
-	public static int GetCurrentBurnout(Player player){
-		int burnout;
-		if(me.nathanpb.Spelling.Mana.Burnout.containsKey(player)){
-			burnout =  me.nathanpb.Spelling.Mana.Burnout.get(player);
-		}else{
-			burnout = 0;
+
+	public static int getMana(UUID uuid){
+		mkProfile(uuid);
+	    try {
+			return new ProjectMetadataObject(uuid).getAsInt("mana");
+		}catch (Exception e){
+			e.printStackTrace();
 		}
-		if(burnout > GetMaxBurnout(player)){
-				if(!me.nathanpb.Spelling.Mana.BurnoutDelay.contains(player)){
-					me.nathanpb.Spelling.Mana.BurnoutDelay.add(player);
+		return 0;
+	}
+	public static int getExp(UUID uuid){
+        mkProfile(uuid);
+		try {
+			return new ProjectMetadataObject(uuid).getAsInt("exp");
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	public static int getBurnout(UUID uuid){
+        mkProfile(uuid);
+        int i = 0;
+		try {
+			i = new ProjectMetadataObject(uuid).getAsInt("burnout");
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		if(i > getMaxBurnout(uuid)){
+			if(!burnoutDelay.contains(uuid)){
+				burnoutDelay.add(uuid);
+			}
+		}
+		return i;
+	}
+	public static int getLevel(UUID uuid){
+		mkProfile(uuid);
+		try {
+			return new ProjectMetadataObject(uuid).getAsInt("level");
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	public static List<Spell> getSelfs(UUID uuid){
+        mkProfile(uuid);
+		List<Spell> spells = new ArrayList<>();
+		List<String> raw = new ArrayList<>();
+		try {
+			raw = new ProjectMetadataObject(uuid).getAsList("selfs");
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		for(Object s : raw){
+			for (Spell spell : SpellTrigger.getRegisteredList()){
+				if(s.toString().contains(spell.getClass().getName())){
+					spells.add(spell);
 				}
+			}
 		}
-		return burnout;
+		return spells;
 	}
-	public static boolean AffectedByBurnout(Player player){
-		if(me.nathanpb.Spelling.Mana.BurnoutDelay.contains(player)){
+	public static List<Spell> getActiveSelfs(UUID uuid){
+        mkProfile(uuid);
+		List<Spell> spells = new ArrayList<>();
+		List<String> raw = new ArrayList<>();
+		try {
+			raw = new ProjectMetadataObject(uuid).getAsList("active_selfs");
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		for(Object s : raw){
+			for (Spell spell : SpellTrigger.getRegisteredList()){
+				if(s.toString().contains(spell.getClass().getName())){
+					spells.add(spell);
+				}
+			}
+		}
+		return spells;
+	}
+
+	public static void setMana(UUID uuid, int mana){
+		try {
+			new ProjectMetadataObject(uuid).put("mana", mana);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+	public static void setEXP(UUID uuid, int exp){
+		new ProjectMetadataObject(uuid).put("exp", exp);
+	}
+	public static void setBurnout(UUID uuid, int burnout){
+		try {
+			new ProjectMetadataObject(uuid).put("burnout", burnout);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+	public static void setSelfs(UUID uuid, List<Spell> selfs){
+		List<Spell> toadd = new ArrayList<>();
+		for(Spell s : selfs){
+			if(s.getSpellArea().equals(Utils.SpellArea.Selfs)){
+				toadd.add(s);
+			}
+		}
+		try {
+			new ProjectMetadataObject(uuid).put("selfs", toadd);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+	public static void setActiveSelfs(UUID uuid, List<Spell> selfs){
+		List<Spell> toadd = new ArrayList<>();
+		for(Spell s : selfs){
+			if(s.getSpellArea().equals(Utils.SpellArea.Selfs)){
+				toadd.add(s);
+			}
+		}
+		try {
+			new ProjectMetadataObject(uuid).put("active_selfs", toadd);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+	public static void setLevel(UUID uuid, int level){
+		new ProjectMetadataObject(uuid).put("level", level);
+	}
+
+	public static boolean hasSelf(UUID uuid, Spell self){
+		if(getSelfs(uuid).contains(self)){
 			return true;
 		}
 		return false;
 	}
-	public static void StartDecrementBurnout(final Player p){
-		if(TaskActivated.contains(p)){
-			return;
+	public static boolean hasActiveSelf(UUID uuid, Spell self){
+		if(getActiveSelfs(uuid).contains(self)){
+			return true;
 		}
-		TaskActivated.add(p);
-		new BukkitRunnable(){	    
-			@Override
-	            public void run(){
-					int decrement;
-					if(GetLevel(p)<1){
-						decrement = 1;
-					}else{
-						decrement = GetLevel(p);
-					}
-					int NewBurnout = me.nathanpb.Spelling.Mana.Burnout.get(p) - decrement;
-					if(NewBurnout < 0){
-						NewBurnout = 0;
-					}
-					me.nathanpb.Spelling.Mana.Burnout.replace(p, NewBurnout);
-					if(GetCurrentBurnout(p)==0){
-						me.nathanpb.Spelling.Mana.BurnoutDelay.remove(p);
-						TaskActivated.remove(p);
-						this.cancel();
-					}
-	            }
-	        }.runTaskTimer(spelling, 0, 10);
-			
+		return false;
 	}
-	public static int GetBurnoutPercent(Player player){
-		int atual = GetCurrentBurnout(player);
-		int maximo = GetMaxBurnout(player);
-		return (atual*100)/maximo;
+	public static void setActivatedSelf(UUID uuid, Spell self, boolean b){
+		if(b){
+			addActiveSelf(uuid, self);
+		}else{
+			removeActiveSelf(uuid, self);
+		}
+	}
+
+	public static void addSelf(UUID uuid, Spell self){
+		if(!hasSelf(uuid, self)){
+			List<Spell> selfs = getSelfs(uuid);
+			selfs.add(self);
+			setSelfs(uuid, selfs);
+		}
+	}
+	public static void addActiveSelf(UUID uuid, Spell self){
+		if(!hasActiveSelf(uuid, self)){
+			List<Spell> selfs = getActiveSelfs(uuid);
+			selfs.add(self);
+			setActiveSelfs(uuid, selfs);
+		}
+	}
+	public static void removeSelf(UUID uuid, Spell self){
+		if(hasSelf(uuid, self)){
+			List<Spell> selfs = getSelfs(uuid);
+			selfs.remove(self);
+			setSelfs(uuid, selfs);
+		}
+	}
+	public static void removeActiveSelf(UUID uuid, Spell self){
+		if(hasActiveSelf(uuid, self)){
+			List<Spell> selfs = getActiveSelfs(uuid);
+			selfs.remove(self);
+			setActiveSelfs(uuid, selfs);
+		}
+	}
+
+	public static void levelUp(UUID uuid){
+		Player p = Bukkit.getPlayer(uuid);
+		int level = getLevel(uuid);
+		int next = (level + 1);
+		int exp = getExp(uuid);
+		setLevel(uuid, next);
+		setEXP(uuid, exp-getExpToLevel(level));
+		p.sendTitle(ChatColor.GREEN+"Level Up!", ChatColor.BLUE+"From "+ChatColor.GOLD+
+						level+ChatColor.BLUE+" to "+ChatColor.GOLD+next);
+	}
+	public static int getExpToLevel(int i){
+		return (int)Math.round(Math.pow(i, 4));
+	}
+	public static int getMaxBurnout(UUID uuid){
+		if(getLevel(uuid)==0){
+			return 25;
+		}
+		return getLevel(uuid)*50;
+	}
+	public static int getMaxMana(UUID uuid){
+		return getMaxBurnout(uuid)*2;
+	}
+	public static void addExp(UUID uuid, int amount){
+		setEXP(uuid, getExp(uuid)+amount);
+		if(getExp(uuid) > getExpToLevel(getLevel(uuid))){
+			levelUp(uuid);
+		}
+	}
+	public static void addBurnout(UUID uuid, int amount){
+		setBurnout(uuid, getBurnout(uuid)+amount);
+		if(getBurnout(uuid)>getMaxBurnout(uuid)){
+			burnoutDelay.add(uuid);
+		}
+	}
+	public static void removeBurnout(UUID uuid, int amount){
+		setBurnout(uuid, getBurnout(uuid)-amount);
+	}
+	public static void addMana(UUID uuid, int amount){
+		if(getMana(uuid)+amount > getMaxMana(uuid)){
+			setMana(uuid, getMaxMana(uuid));
+		}else{
+			setMana(uuid, getMaxMana(uuid)+amount);
+		}
+	}
+
+	public static String getInfo(UUID uuid){
+
+		String mana = ChatColor.BLUE+"Mana: "+ChatColor.GOLD+""+getMana(uuid)+""+ChatColor.BLUE+"/"+ChatColor.GOLD+""+getMaxMana(uuid)+ChatColor.DARK_PURPLE+" - "+ChatColor.GOLD+getPercent(getMana(uuid), getMaxMana(uuid))+"%";
+		String burnout = ChatColor.BLUE+"Burnout: "+ChatColor.GOLD+""+getBurnout(uuid)+""+ChatColor.BLUE+"/"+ChatColor.GOLD+""+getMaxBurnout(uuid)+ChatColor.DARK_PURPLE+" - "+ChatColor.GOLD+getPercent(getBurnout(uuid), getMaxBurnout(uuid))+"%";
+		String level = ChatColor.BLUE+"Level: "+ChatColor.GOLD+""+getLevel(uuid)+"                          ";
+		int atual = (int)getExp(uuid);
+		int target = (int)getExpToLevel(getLevel(uuid));
+		int percent = getPercent(atual, target);
+		String exp = ChatColor.BLUE+"EXP: "+ChatColor.GOLD+""+getExp(uuid)+""+ChatColor.BLUE+"/"+ChatColor.GOLD+target+ChatColor.DARK_PURPLE+" - "+ChatColor.GOLD+percent+"%";
+		String splitter = "\n";
+		String start = ChatColor.DARK_PURPLE+"\n======================\n";
+		String s = start+mana+splitter+burnout+splitter+exp+splitter+level+start;
+		return s;
+	}
+	public static String getActionBar(UUID uuid){
+		String mana = ChatColor.BLUE+"Mana: "+ChatColor.GOLD+getPercent(getMana(uuid), getMaxMana(uuid))+"%";
+		String burnout = ChatColor.BLUE+"Burnout: "+ChatColor.GOLD+getPercent(getBurnout(uuid), getMaxBurnout(uuid))+"%";
+		String level = ChatColor.BLUE+"Level: "+ChatColor.GOLD+""+getLevel(uuid);
+		int atual = (int)getExp(uuid);
+		int target = (int)getExpToLevel(getLevel(uuid));
+		int percent = getPercent(atual, target);
+		String exp = ChatColor.BLUE+"EXP: "+ChatColor.GOLD+percent+"%";
+		String splitter = ChatColor.DARK_PURPLE+" | ";
+		String s = mana+splitter+burnout+splitter+level+splitter+exp;
+		return s;
+	}
+	public static int getPercent(int x, int y){
+		int i = 0;
+		try {
+			i = x * (100) / y;
+		}catch (ArithmeticException e){
+			return 0;
+		}
+		return i;
+	}
+	public static void sendActionbar(Player p, String message) {
+		IChatBaseComponent icbc = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" +
+				ChatColor.translateAlternateColorCodes('&', message) + "\"}");
+		PacketPlayOutChat bar = new PacketPlayOutChat(icbc, (byte)2);
+		((CraftPlayer)p).getHandle().playerConnection.sendPacket(bar);
+	}
+	public static void startRunnables(){
+		new BukkitRunnable(){
+			public void run(){
+				for(Player p : Bukkit.getOnlinePlayers()){
+					sendActionbar(p, getActionBar(p.getUniqueId()));
+
+					if(getBurnout(p.getUniqueId()) == 0) {
+						if (burnoutDelay.contains(p.getUniqueId())) {
+							burnoutDelay.remove(p.getUniqueId());
+						}
+					}
+					if(getBurnout(p.getUniqueId()) > 0) {
+						if(getBurnout(p.getUniqueId()) - getLevel(p.getUniqueId()) >= 0) {
+							removeBurnout(p.getUniqueId(), getLevel(p.getUniqueId()));
+						}else{
+							setBurnout(p.getUniqueId(), 0);
+						}
+					}
+				}
+			}
+		}.runTaskTimer(Spelling.getSpelling(), 20, 20);
 	}
 }
