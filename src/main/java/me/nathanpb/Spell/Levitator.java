@@ -1,5 +1,9 @@
 package me.nathanpb.Spell;
 
+import me.nathanpb.SpellBook.Utils;
+import me.nathanpb.SpellBook.Utils.SpellArea;
+import me.nathanpb.Spelling.Spelling;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -8,11 +12,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.util.Vector;
-import org.bukkit.ChatColor;
-
-import me.nathanpb.SpellBook.Utils;
-import me.nathanpb.SpellBook.Utils.SpellArea;
-import me.nathanpb.Spelling.Spelling;
 
 public class Levitator implements Spell{
 	private Spelling plugin;

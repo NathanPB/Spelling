@@ -1,10 +1,9 @@
 package me.nathanpb.Spell;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import me.nathanpb.SpellBook.Utils;
+import me.nathanpb.SpellBook.Utils.SpellArea;
+import me.nathanpb.Spelling.Spelling;
 import org.bukkit.ChatColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -14,9 +13,8 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import me.nathanpb.SpellBook.Utils;
-import me.nathanpb.SpellBook.Utils.SpellArea;
-import me.nathanpb.Spelling.Spelling;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Sanitatum implements Spell{
 	private List<PotionEffectType> pet = new ArrayList<>();

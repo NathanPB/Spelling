@@ -1,11 +1,7 @@
 package me.nathanpb.Spell;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import me.nathanpb.SpellBook.Utils;
 import me.nathanpb.SpellBook.Utils.SpellArea;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Snowball;
@@ -15,6 +11,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.util.Vector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MagicBreaker implements Spell{
 	public static List<Snowball> snowball = new ArrayList<Snowball>();

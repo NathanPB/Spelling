@@ -1,5 +1,8 @@
 package me.nathanpb.Spell;
 
+import me.nathanpb.SpellBook.Utils;
+import me.nathanpb.SpellBook.Utils.SpellArea;
+import me.nathanpb.Spelling.Spelling;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
@@ -11,10 +14,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-
-import me.nathanpb.SpellBook.Utils;
-import me.nathanpb.SpellBook.Utils.SpellArea;
-import me.nathanpb.Spelling.Spelling;
 
 public class Binding implements Spell{
 	private Spelling plugin;

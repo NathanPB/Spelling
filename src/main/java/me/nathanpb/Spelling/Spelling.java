@@ -1,27 +1,8 @@
 package me.nathanpb.Spelling;
 
-import me.nathanpb.Spell.AmphibiousBreath;
-import me.nathanpb.Spell.AuraShockwave;
-import me.nathanpb.Spell.AwakenedTNT;
-import me.nathanpb.Spell.BatEyes;
-import me.nathanpb.Spell.Binding;
-import me.nathanpb.Spell.Blink;
-import me.nathanpb.Spell.FlyingDevil;
-import me.nathanpb.Spell.HandAssembler;
-import me.nathanpb.Spell.Levitator;
-import me.nathanpb.Spell.MagicBreaker;
-import me.nathanpb.Spell.ManaChecker;
-import me.nathanpb.Spell.ManaCookie;
-import me.nathanpb.Spell.MeteorCaller;
-import me.nathanpb.Spell.PrimordialStick;
-import me.nathanpb.Spell.QuicksilverLimbs;
-import me.nathanpb.Spell.RabbitLegs;
-import me.nathanpb.Spell.Sanitatum;
-import me.nathanpb.Spell.Spell;
-import me.nathanpb.Spell.SpellTrigger;
-import me.nathanpb.Spell.VacuumGenerator;
-import me.nathanpb.SpellBook.SpellBook;
-
+import me.nathanpb.EventHandler.ManaMananger;
+import me.nathanpb.Selfs.*;
+import me.nathanpb.Spell.*;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,12 +16,11 @@ public class Spelling extends JavaPlugin{
     public void onEnable() {
         Bukkit.getLogger().info("Starting Spelling "+ this.getDescription().getVersion());
         this.getCommand("Spelling").setExecutor(new me.nathanpb.Commands.Spelling(this));
-        this.getCommand("Mana").setExecutor(new me.nathanpb.Commands.Mana(this));
         getServer().getPluginManager().registerEvents(new me.nathanpb.EventHandler.ThingsToListen(null), this);
-        getServer().getPluginManager().registerEvents(new me.nathanpb.EventHandler.ManaMananger(null), this);
-        getServer().getPluginManager().registerEvents(new me.nathanpb.Selfs.SelfBook(null), this);
+        getServer().getPluginManager().registerEvents(new me.nathanpb.EventHandler.ManaMananger(), this);
         getServer().getPluginManager().registerEvents(new me.nathanpb.SpellBook.Handler(), this);
         getServer().getPluginManager().registerEvents(new me.nathanpb.Spell.SpellTrigger(null), this);
+        getServer().getPluginManager().registerEvents(new me.nathanpb.Selfs.Handler(), this);
         
         SpellTrigger.registerSpell(new AuraShockwave(null));
         SpellTrigger.registerSpell(new AwakenedTNT(null));
@@ -62,21 +42,15 @@ public class Spelling extends JavaPlugin{
         SpellTrigger.registerSpell(new QuicksilverLimbs());
         SpellTrigger.registerSpell(new me.nathanpb.Spell.SelfBook());
         SpellTrigger.registerSpell(new RabbitLegs());
-        
-        me.nathanpb.Spelling.ConfigMananger.GenConfigFile();
-        me.nathanpb.EventHandler.ManaMananger.LoadManaOnEnable();
-        me.nathanpb.Selfs.Selfs.ActiveSelfs();
+
+        SelfMananger.startRunnable();
+        ManaMananger.startRunnables();
     }
 
     @Override
     public void onDisable() {
     	HandlerList.unregisterAll();
-    	me.nathanpb.EventHandler.ManaMananger.SaveManaOnDisable();
-    	me.nathanpb.Spelling.Mana.mana.clear();
-    	me.nathanpb.Spelling.Mana.UsedMana.clear();
-    	me.nathanpb.Spelling.Mana.Burnout.clear();
-    	me.nathanpb.Spelling.Mana.BurnoutDelay.clear();
-    	me.nathanpb.Selfs.SelfMananger.Selfs.clear();
+
     }
     public void flying(){
         if(Bukkit.getServer().getAllowFlight()){

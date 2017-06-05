@@ -2,9 +2,6 @@ package me.nathanpb.Spell;
 
 import me.nathanpb.SpellBook.Utils;
 import me.nathanpb.SpellBook.Utils.SpellArea;
-import me.nathanpb.Spelling.ConfigMananger;
-
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -38,11 +35,7 @@ public class AuraShockwave implements Spell{
 	}
 	
     public ItemStack getSpellItem(){
-    	if(ConfigMananger.GetConfigBooleans("PaperMode")){
-    		return Utils.Icon(Material.PAPER, getSpellName());
-    	}else{
-    		return Utils.Icon(Material.GLOWSTONE_DUST, getSpellName());
-    	}
+		return Utils.Icon(Material.GLOWSTONE_DUST, getSpellName());
     }
     @Override
     public SpellArea getSpellArea() {

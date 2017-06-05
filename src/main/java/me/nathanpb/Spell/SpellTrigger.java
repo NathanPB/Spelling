@@ -1,17 +1,12 @@
 package me.nathanpb.Spell;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import me.nathanpb.EventHandler.ManaMananger;
 import me.nathanpb.Spelling.Spelling;
-import net.minecraft.server.v1_11_R1.Material;
-
-import org.bukkit.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.Event;
@@ -22,6 +17,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SpellTrigger implements Listener{
 
@@ -69,7 +67,7 @@ public class SpellTrigger implements Listener{
 						e.getPlayer().sendMessage(ChatColor.BLUE + "Available: " + ChatColor.GOLD+ EXP);
 						return;
 					}
-					if(ManaMananger.CanUseSpell(e.getPlayer(), tf.getManaCost(), 0, true)){
+					if(ManaMananger.CanUseSpell(e.getPlayer(), tf.getManaCost())){
 						tf.triggeredSpellEvent(e);
 						return;
 					}
@@ -83,7 +81,7 @@ public class SpellTrigger implements Listener{
 					}
 					Sanitatum sanitatum = new Sanitatum(null);
 					sanitatum.setManaCost(sanitatum.calculateManaCost(e.getPlayer()));
-					if(ManaMananger.CanUseSpell(e.getPlayer(), sanitatum.getManaCost(), 0, true)){
+					if(ManaMananger.CanUseSpell(e.getPlayer(), sanitatum.getManaCost())){
 						trigger(sanitatum, e);
 					}
 					return;
@@ -96,7 +94,7 @@ public class SpellTrigger implements Listener{
 					if(e.getPlayer().isSneaking()){
 						VacuumGenerator vacuum = new VacuumGenerator(null);
 						vacuum.setManaCost(50);
-						if(ManaMananger.CanUseSpell(e.getPlayer(), vacuum.getManaCost(), 0, true)){
+						if(ManaMananger.CanUseSpell(e.getPlayer(), vacuum.getManaCost())){
 							vacuum.triggerIfShifted(e);
 							return;
 						}
@@ -133,7 +131,7 @@ public class SpellTrigger implements Listener{
 							distance = 1000;
 						}
 						blink.setManaCost(distance);
-						if(ManaMananger.CanUseSpell(e.getPlayer(), blink.getManaCost(), 0, true)){
+						if(ManaMananger.CanUseSpell(e.getPlayer(), blink.getManaCost())){
 							trigger(blink, e);
 						}
 					}
@@ -148,14 +146,14 @@ public class SpellTrigger implements Listener{
 						e.getPlayer().sendMessage(ChatColor.RED+"You can't call meteors on void!");
 						return;
 					}
-					if(ManaMananger.CanUseSpell(e.getPlayer(), s.getManaCost(), 0, true)){
+					if(ManaMananger.CanUseSpell(e.getPlayer(), s.getManaCost())){
 						trigger(meteor, e);
 					}
 				}
 			}
 			//REGULARES
 			if(s.getSpellItem().equals(e.getItem())){
-				if(ManaMananger.CanUseSpell(e.getPlayer(), s.getManaCost(), 0, true)){
+				if(ManaMananger.CanUseSpell(e.getPlayer(), s.getManaCost())){
 					trigger(s, e);
 				}
 			}
@@ -180,7 +178,7 @@ public class SpellTrigger implements Listener{
 						if(e.getRightClicked() instanceof Player){
 							spell.setManaCost(1000);
 						}
-						if(ManaMananger.CanUseSpell(e.getPlayer(), spell.getManaCost(), 0, true)){
+						if(ManaMananger.CanUseSpell(e.getPlayer(), spell.getManaCost())){
 							s.triggeredSpellEvent(e);
 							return;
 						}
@@ -191,7 +189,7 @@ public class SpellTrigger implements Listener{
 			
 			//REGULARES
 			if(s.getSpellItem().equals(e.getPlayer().getItemInHand())){
-				if(ManaMananger.CanUseSpell(e.getPlayer(), s.getManaCost(), 0, true)){
+				if(ManaMananger.CanUseSpell(e.getPlayer(), s.getManaCost())){
 					s.triggeredSpellEvent(e);
 					return;
 				}
@@ -206,7 +204,7 @@ public class SpellTrigger implements Listener{
 				if(s.getSpellItem().equals(e.getPlayer().getItemInHand())){
 					ManaCookie spell = new ManaCookie();
 					spell.setManaCost((20 - e.getPlayer().getFoodLevel())*100);
-					if(ManaMananger.CanUseSpell(e.getPlayer(), spell.getManaCost(), 0, false)){
+					if(ManaMananger.CanUseSpell(e.getPlayer(), spell.getManaCost())){
 						spell.triggeredSpellEvent(e);
 					}
 				}
@@ -229,7 +227,7 @@ public class SpellTrigger implements Listener{
 					if(e.getDamager() instanceof Player){
 						Player p = (Player) e.getDamager();
 						if(p.getItemInHand().equals(s.getSpellItem())){
-							if(ManaMananger.CanUseSpell(p, s.getManaCost(), 0, true)){
+							if(ManaMananger.CanUseSpell(p, s.getManaCost())){
 								s.triggeredSpellEvent(e);
 								return;
 							}

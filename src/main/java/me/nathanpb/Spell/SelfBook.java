@@ -2,8 +2,6 @@ package me.nathanpb.Spell;
 
 import me.nathanpb.SpellBook.Utils;
 import me.nathanpb.SpellBook.Utils.SpellArea;
-
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
@@ -45,7 +43,7 @@ public class SelfBook implements Spell{
 	public void triggeredSpellEvent(Event rawEvent) {
 		if(rawEvent instanceof PlayerInteractEvent){
 			PlayerInteractEvent e = (PlayerInteractEvent) rawEvent;
-			e.getPlayer().openInventory(me.nathanpb.Selfs.SelfBook.Main(e.getPlayer()));
+			e.getPlayer().openInventory(me.nathanpb.Selfs.SelfBook.getInventoryFor(e.getPlayer().getUniqueId()));
 		}
 	}
 	

@@ -2,8 +2,6 @@ package me.nathanpb.Spell;
 
 import me.nathanpb.SpellBook.Utils;
 import me.nathanpb.SpellBook.Utils.SpellArea;
-
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.Event;

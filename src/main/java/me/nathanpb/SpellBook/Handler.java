@@ -1,14 +1,9 @@
 package me.nathanpb.SpellBook;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import me.nathanpb.Spell.Spell;
 import me.nathanpb.Spell.SpellTrigger;
 import me.nathanpb.SpellBook.Utils.SpellArea;
-
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,11 +13,18 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 public class Handler implements Listener{
 	private static HashMap<Player, Spell> lastClicked = new HashMap<>();
 	@EventHandler
 	public static void event(InventoryClickEvent e){
-		if(e.getInventory().getName().startsWith(ChatColor.DARK_PURPLE+"Recipe")){
+		if(e.getClickedInventory() == null){
+			return;
+		}
+		if(e.getClickedInventory().getName().startsWith(ChatColor.DARK_PURPLE+"Recipe")){
 			e.setCancelled(true);
 			for(Spell s : SpellTrigger.getRegisteredList()){
 				ItemStack target = e.getCurrentItem();
@@ -45,7 +47,7 @@ public class Handler implements Listener{
 				e.getWhoClicked().getInventory().addItem(lastClicked.get(e.getWhoClicked()).getSpellItem());
 			}
 		}
-		if(e.getInventory().equals(SpellBook.main)){
+		if(e.getClickedInventory().equals(SpellBook.main)){
 			for(SpellArea s : SpellArea.values()){
 				if(s.getValue().equals(e.getCurrentItem())){
 					e.getWhoClicked().openInventory(SpellBook.areas.get(s));

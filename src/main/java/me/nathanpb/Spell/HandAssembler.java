@@ -1,6 +1,8 @@
 package me.nathanpb.Spell;
-;
 
+import me.nathanpb.SpellBook.Utils;
+import me.nathanpb.SpellBook.Utils.SpellArea;
+import me.nathanpb.Spelling.Spelling;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
@@ -8,9 +10,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 
-import me.nathanpb.SpellBook.Utils;
-import me.nathanpb.SpellBook.Utils.SpellArea;
-import me.nathanpb.Spelling.Spelling;
+;
 
 public class HandAssembler implements Spell{
 	private Spelling plugin;

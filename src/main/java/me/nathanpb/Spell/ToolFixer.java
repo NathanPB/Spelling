@@ -1,10 +1,9 @@
 package me.nathanpb.Spell;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import me.nathanpb.SpellBook.Utils;
+import me.nathanpb.SpellBook.Utils.SpellArea;
+import me.nathanpb.Spelling.Spelling;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -12,11 +11,11 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.ChatColor;
 
-import me.nathanpb.SpellBook.Utils;
-import me.nathanpb.SpellBook.Utils.SpellArea;
-import me.nathanpb.Spelling.Spelling;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class ToolFixer implements Spell{
 	private int manaCost = 0;

@@ -1,7 +1,6 @@
 package me.nathanpb.Spell;
 
 import me.nathanpb.SpellBook.Utils.SpellArea;
-
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;

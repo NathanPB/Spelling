@@ -1,16 +1,17 @@
 package me.nathanpb.Spell;
 
+import me.nathanpb.EventHandler.ManaMananger;
+import me.nathanpb.SpellBook.Utils;
+import me.nathanpb.SpellBook.Utils.SpellArea;
+import me.nathanpb.Spelling.Spelling;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 
-import me.nathanpb.EventHandler.ManaMananger;
-import me.nathanpb.SpellBook.Utils;
-import me.nathanpb.SpellBook.Utils.SpellArea;
-import me.nathanpb.Spelling.Spelling;
-import org.bukkit.ChatColor;;
+;
 
 public class ManaChecker implements Spell{
 	private Spelling plugin;
@@ -52,7 +53,7 @@ public class ManaChecker implements Spell{
 	public void triggeredSpellEvent(Event rawEvent) {
 		if(rawEvent instanceof PlayerInteractEvent){
 			PlayerInteractEvent e = (PlayerInteractEvent)rawEvent;
-			ManaMananger.SendManaPacket(e.getPlayer());
+			e.getPlayer().sendMessage(ManaMananger.getInfo(e.getPlayer().getUniqueId()));
 		}
 	}
 }

@@ -1,19 +1,16 @@
 package me.nathanpb.SpellBook;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import me.nathanpb.Spell.Spell;
 import me.nathanpb.Spell.SpellTrigger;
 import me.nathanpb.SpellBook.Utils.SpellArea;
-
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class SpellBook{
 	public static Inventory main = getMain();
