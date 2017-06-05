@@ -4,9 +4,13 @@ import me.nathanpb.Spelling.Spelling;
 import net.minecraft.server.v1_11_R1.EntityInsentient;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by nathanpb on 6/5/17.
@@ -105,5 +109,22 @@ public class SpellingEntityBase {
                 AI.runTaskTimer(Spelling.getSpelling(), 0, 1);
             }
         }
+    }
+    public Entity getNextTarget(EntityType type){
+        List<Entity> targets = new ArrayList<>();
+        for(Entity e : this.entity.getNearbyEntities(15, 3, 15)){
+            if(e.getType().equals(type)){
+                targets.add(e);
+            }
+        }
+        Entity lastTarget = null;
+        for(Entity e : targets){
+            if(lastTarget != null){
+                if(this.entity.getLocation().distance(e.getLocation()) < this.entity.getLocation().distance(lastTarget.getLocation())){
+                    lastTarget = e;
+                }
+            }
+        }
+        return lastTarget;
     }
 }
