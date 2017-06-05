@@ -1,23 +1,21 @@
 package me.nathanpb.Commands;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import me.nathanpb.Selfs.SelfMananger.Self;
-import me.nathanpb.SpellBook.SpellBook;
+import me.nathanpb.EventHandler.ManaMananger;
+import me.nathanpb.ProjectMetadata.ProjectMetadataObject;
+import me.nathanpb.Spell.Spell;
 import me.nathanpb.SpellBook.Utils;
-
-import java.util.ConcurrentModificationException;
-
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+
+import java.util.UUID;
 
 /**
  * Created by nathanpb on 1/31/17.
@@ -75,165 +73,110 @@ public class Spelling implements CommandExecutor {
 					p.openInventory(i);
 					return true;
 				}
-				if (args[0].equals("nível")) {
-					sender.sendMessage(me.nathanpb.EventHandler.ManaMananger
-							.GetProgression(Bukkit.getPlayerExact(sender
-									.getName())));
-					return true;
-				}
+
 				if (args[0].equalsIgnoreCase("hand")) {
 					sender.sendMessage(Bukkit.getPlayerExact(sender.getName())
 							.getItemInHand().getType()
 							+ "");
 					return true;
 				}
-				if (args[0].equalsIgnoreCase("update")) {
-					if (!sender.hasPermission("op")) {
-						sender.sendMessage(ChatColor.DARK_RED
-								+ "Você não tem permissão para executar este comando!");
-						return true;
-					}
-					me.nathanpb.Spelling.ConfigMananger.ConfigUpdater(Bukkit
-							.getPlayerExact(sender.getName()));
+			}
+			if(args.length == 3){
+				if(!sender.isOp()){
+					sender.sendMessage(ChatColor.RED+"You have no permission!");
 					return true;
 				}
-				if (args[0].equalsIgnoreCase("selfs")) {
-					if (!sender.hasPermission("op")) {
-						sender.sendMessage(ChatColor.DARK_RED
-								+ "Você não tem permissão para executar este comando!");
+				OfflinePlayer target = Bukkit.getOfflinePlayer(args[2]);
+				if(args[0].equalsIgnoreCase("mana")){
+					if(args[1].equalsIgnoreCase("see")){
+						int value = ManaMananger.getMana(target.getUniqueId());
+						sender.sendMessage(ChatColor.BLUE+"Mana for "+ChatColor.GOLD+args[2]+ChatColor.BLUE+": "+
+						ChatColor.GOLD+value);
 						return true;
 					}
-					List<Self> selfs = new ArrayList<>();
-					selfs = me.nathanpb.Selfs.SelfMananger.GetSelfs(Bukkit
-							.getPlayerExact(sender.getName()));
-					String self = "";
-					if (selfs.isEmpty()) {
-						sender.sendMessage(ChatColor.RED
-								+ "Você ainda não tem nenhum Self!");
-					}
-					for (Self s : selfs) {
-						self = self + s + ", ";
-					}
-					if (self.contains("Null, ")) {
-						self = self.replaceAll("Null, ", "");
-					}
-					if (self.endsWith(", ")) {
-						self = self.substring(0, self.length() - 2);
-					}
-					sender.sendMessage(ChatColor.BLUE + "Seus Selfs: "
-							+ ChatColor.GOLD + self);
-					return true;
 				}
-				
-				if (args[0].equalsIgnoreCase("selfsativos")) {
-					if (!sender.hasPermission("op")) {
-						sender.sendMessage(ChatColor.DARK_RED
-								+ "Você não tem permissão para executar este comando!");
+				if(args[0].equalsIgnoreCase("burnout")){
+					if(args[1].equalsIgnoreCase("see")){
+						int value = ManaMananger.getBurnout(target.getUniqueId());
+						sender.sendMessage(ChatColor.BLUE+"Burnout for "+ChatColor.GOLD+args[2]+ChatColor.BLUE+": "+
+								ChatColor.GOLD+value);
 						return true;
 					}
-					List<Self> selfs = new ArrayList<>();
-					selfs = me.nathanpb.Selfs.SelfMananger
-							.GetActiveSelfs(Bukkit.getPlayerExact(sender
-									.getName()));
-					String self = "";
-					if (selfs.isEmpty()) {
-						sender.sendMessage(ChatColor.RED
-								+ "Você não tem nenhum Self ativo!");
+				}
+				if(args[0].equalsIgnoreCase("exp")){
+					if(args[1].equalsIgnoreCase("see")){
+						int value = ManaMananger.getExp(target.getUniqueId());
+						sender.sendMessage(ChatColor.BLUE+"EXP for "+ChatColor.GOLD+args[2]+ChatColor.BLUE+": "+
+								ChatColor.GOLD+value);
+						return true;
 					}
-					for (Self s : selfs) {
-						self = self + s + ", ";
+				}
+				if(args[0].equalsIgnoreCase("level")){
+					if(args[1].equalsIgnoreCase("see")){
+						int value = ManaMananger.getLevel(target.getUniqueId());
+						sender.sendMessage(ChatColor.BLUE+"Level for "+ChatColor.GOLD+args[2]+ChatColor.BLUE+": "+
+								ChatColor.GOLD+value);
+						return true;
 					}
-					if (self.contains("Null, ")) {
-						self = self.replaceAll("Null, ", "");
+				}
+				if(args[0].equalsIgnoreCase("selfs")){
+					if(args[1].equalsIgnoreCase("see")){
+						String selfs = "";
+						String actives = "";
+						for(Spell s : ManaMananger.getSelfs(target.getUniqueId())){
+							selfs += s.getSpellName()+ChatColor.BLUE+", ";
+						}
+						for(Spell s : ManaMananger.getActiveSelfs(target.getUniqueId())){
+							actives += s.getSpellName()+ChatColor.BLUE+", ";
+						}
+						sender.sendMessage(ChatColor.BLUE+"All Selfs: "+selfs);
+						sender.sendMessage(ChatColor.BLUE+"Actives: "+actives);
+						return true;
 					}
-					if (self.endsWith(", ")) {
-						self = self.substring(0, self.length() - 2);
-					}
-					sender.sendMessage(ChatColor.BLUE + "Seus Selfs: "
-							+ ChatColor.GOLD + self);
-					return true;
 				}
 			}
-			if (args.length == 2) {
-				if (Bukkit.getPlayerExact(args[1]) == null) {
-					sender.sendMessage(ChatColor.GOLD + args[2] + ChatColor.RED
-							+ " não está online");
-				}
-				if (args[0].equalsIgnoreCase("selfs")) {
-					if (!sender.hasPermission("op")) {
-						sender.sendMessage(ChatColor.DARK_RED
-								+ "Você não tem permissão para executar este comando!");
-						return true;
-					}
-					List<Self> selfs = new ArrayList<>();
-					selfs = me.nathanpb.Selfs.SelfMananger.GetSelfs(Bukkit
-							.getPlayerExact(args[1]));
-					String self = "";
-					if (selfs.isEmpty()) {
-						sender.sendMessage(ChatColor.RED
-								+ "O jogador não tem nenhum Self!");
-					}
-					for (Self s : selfs) {
-						self = self + s + ", ";
-					}
-					if (self.contains("Null, ")) {
-						self = self.replaceAll("Null, ", "");
-					}
-					if (self.endsWith(", ")) {
-						self = self.substring(0, self.length() - 2);
-					}
-					sender.sendMessage(ChatColor.BLUE + "Selfs: "
-							+ ChatColor.GOLD + self);
+			if(args.length == 4){
+				if(!sender.isOp()){
+					sender.sendMessage(ChatColor.RED+"You have no permission!");
 					return true;
 				}
-				if (args[0].equalsIgnoreCase("selfsativos")) {
-					if (!sender.hasPermission("op")) {
-						sender.sendMessage(ChatColor.DARK_RED
-								+ "Você não tem permissão para executar este comando!");
-						return true;
+				OfflinePlayer target = Bukkit.getOfflinePlayer(args[2]);
+				if(args[0].equalsIgnoreCase("mana")){
+					if(args[1].equalsIgnoreCase("set")){
+						if(StringUtils.isNumeric(args[3])){
+							ManaMananger.setMana(target.getUniqueId(), Integer.valueOf(args[3]));
+							sender.sendMessage(ChatColor.GREEN+"Sucessfull!");
+							return true;
+						}
 					}
-					List<Self> selfs = new ArrayList<>();
-					selfs = me.nathanpb.Selfs.SelfMananger
-							.GetActiveSelfs(Bukkit.getPlayerExact(args[1]));
-					String self = "";
-					if (selfs.isEmpty()) {
-						sender.sendMessage(ChatColor.RED
-								+ "O jogador não tem nenhum Self ativo!");
-						return true;
+				}
+				if(args[0].equalsIgnoreCase("burnout")){
+					if(args[1].equalsIgnoreCase("set")){
+						if(StringUtils.isNumeric(args[3])){
+							ManaMananger.setBurnout(target.getUniqueId(), Integer.valueOf(args[3]));
+							sender.sendMessage(ChatColor.GREEN+"Sucessfull!");
+							return true;
+						}
 					}
-					for (Self s : selfs) {
-						self = self + s + ", ";
+				}
+				if(args[0].equalsIgnoreCase("level")){
+					if(args[1].equalsIgnoreCase("set")){
+						if(StringUtils.isNumeric(args[3])){
+							ManaMananger.setLevel(target.getUniqueId(), Integer.valueOf(args[3]));
+							sender.sendMessage(ChatColor.GREEN+"Sucessfull!");
+							return true;
+						}
 					}
-					if (self.contains("Null, ")) {
-						self = self.replaceAll("Null, ", "");
+				}
+				if(args[0].equalsIgnoreCase("exp")){
+					if(args[1].equalsIgnoreCase("set")){
+						if(StringUtils.isNumeric(args[3])){
+							ManaMananger.setEXP(target.getUniqueId(), Integer.valueOf(args[3]));
+							sender.sendMessage(ChatColor.GREEN+"Sucessfull!");
+							return true;
+						}
 					}
-					if (self.endsWith(", ")) {
-						self = self.substring(0, self.length() - 2);
-					}
-					sender.sendMessage(ChatColor.BLUE + "Selfs Ativos: "
-							+ ChatColor.GOLD + self);
-					return true;
-				} /*
-				if (args[0].equalsIgnoreCase("limparselfs")) {
-					if (!sender.hasPermission("op")) {
-						sender.sendMessage(ChatColor.DARK_RED
-								+ "Você não tem permissão para executar este comando!");
-						return true;
-					}
-					List<Self> selfs = new ArrayList<>();
-					selfs = me.nathanpb.Selfs.SelfMananger.GetSelfs(Bukkit
-							.getPlayerExact(args[1]));
-					if (selfs.isEmpty()) {
-						sender.sendMessage(ChatColor.RED
-								+ "O jogador não tem nenhum Self!");
-						return true;
-					}
-					me.nathanpb.Selfs.SelfMananger.ClearAllSelfs(Bukkit.getPlayerExact(args[1]));
-					sender.sendMessage(ChatColor.BLUE + "Todas as Selfs de "
-							+ ChatColor.GOLD + args[1] + ChatColor.BLUE
-							+ " foram removidas!");
-					return true;
-				} */
+				}
 			}
 		}
 		return false;
