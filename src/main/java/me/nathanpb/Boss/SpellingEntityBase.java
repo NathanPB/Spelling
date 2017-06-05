@@ -1,5 +1,6 @@
 package me.nathanpb.Boss;
 
+import me.nathanpb.Spelling.Spelling;
 import net.minecraft.server.v1_11_R1.EntityInsentient;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
@@ -101,7 +102,7 @@ public class SpellingEntityBase {
     private void setupAI(){
         if(this.AI != null){
             if(isAITrue()){
-                AI.run();
+                AI.runTaskTimer(Spelling.getSpelling(), 0, 1);
             }
         }
     }
