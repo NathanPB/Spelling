@@ -16,6 +16,7 @@ public class SpellingEntityBase {
     private double maxSpeed;
     private EntityType type;
     private Location spawnLocation;
+    private BukkitRunnable AI;
 
     private LivingEntity entity;
     private double health;
@@ -30,6 +31,7 @@ public class SpellingEntityBase {
     public void spawn(Location spawnLocation){
         this.spawnLocation = spawnLocation;
         this.entity = (LivingEntity)spawnLocation.getWorld().spawnEntity(spawnLocation, type);
+        this.entity.setAI(false);
     }
     public void kill(){
         this.entity.setHealth(0);
@@ -66,6 +68,9 @@ public class SpellingEntityBase {
     public LivingEntity getEntity(){
         return this.entity;
     }
+    public BukkitRunnable getAI(){
+        return this.AI;
+    }
 
     //SETTERS
     public void setHealth(double health){
@@ -83,9 +88,20 @@ public class SpellingEntityBase {
     public void setMaxSpeed(double maxSpeed){
         this.maxSpeed = maxSpeed;
     }
+    public void setAI(BukkitRunnable ai){
+        this.AI = ai;
+    }
 
     //UTIL
     public void goTo(Location loc){
         ((EntityInsentient) ((CraftEntity) this.entity).getHandle()).getNavigation().a(loc.getX(), loc.getY(), loc.getZ(), getMaxSpeed());
+    }
+
+    public void setupAI(){
+        if(this.AI != null){
+            if(isAITrue()){
+                AI.run();
+            }
+        }
     }
 }
