@@ -1,5 +1,6 @@
 package me.nathanpb.Boss;
 
+import com.google.common.collect.Sets;
 import me.nathanpb.Spelling.Spelling;
 import net.minecraft.server.v1_11_R1.*;
 import org.bukkit.Bukkit;
@@ -11,6 +12,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +41,7 @@ public class SpellingEntityBase {
     public void spawn(Location spawnLocation){
         this.spawnLocation = spawnLocation;
         this.entity = (LivingEntity)spawnLocation.getWorld().spawnEntity(spawnLocation, type);
-        this.entity.setAI(true);
+        this.entity.setCustomName(this.name);
     }
     public void kill(){
         this.entity.setHealth(0);
@@ -78,6 +80,9 @@ public class SpellingEntityBase {
     }
     public BukkitRunnable getAI(){
         return this.AI;
+    }
+    public EntityInsentient getAsNMSEntity(){
+        return ((EntityInsentient)((CraftEntity)this.entity).getHandle());
     }
 
     //SETTERS
@@ -138,5 +143,30 @@ public class SpellingEntityBase {
             }
         }
         return lastTarget;
+    }
+    public void clearGoals(){
+        try {
+            EntityInsentient c = getAsNMSEntity();
+            Field bField = PathfinderGoalSelector.class.getDeclaredField("b");
+            bField.setAccessible(true);
+            Field cField = PathfinderGoalSelector.class.getDeclaredField("c");
+            cField.setAccessible(true);
+            bField.set(c.goalSelector, Sets.newLinkedHashSet());
+            bField.set(c.targetSelector, Sets.newLinkedHashSet());
+            cField.set(c.goalSelector, Sets.newLinkedHashSet());
+            cField.set(c.targetSelector, Sets.newLinkedHashSet());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    public void addGoal(int id, PathfinderGoal goal){
+        EntityInsentient c = getAsNMSEntity();
+        c.goalSelector.a(0, new PathfinderGoalFloat(c));
+        c.goalSelector.a(id, goal);
+    }
+    public void attack(AttackType type, LivingEntity target){
+        if(type.equals(AttackType.MELEE)){
+            getAsNMSEntity().B((EntityLiving)((CraftEntity)target).getHandle());
+        }
     }
 }
