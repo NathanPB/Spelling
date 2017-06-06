@@ -1,8 +1,10 @@
 package me.nathanpb.Boss;
 
 import me.nathanpb.Spelling.Spelling;
-import net.minecraft.server.v1_11_R1.EntityInsentient;
+import net.minecraft.server.v1_11_R1.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -18,26 +20,26 @@ import java.util.List;
 public class SpellingEntityBase {
     private String name;
     private double maxHealth;
-    private double maxSpeed;
+    private double speed;
     private EntityType type;
     private Location spawnLocation;
     private BukkitRunnable AI;
 
     private LivingEntity entity;
     private double health;
-    private boolean AIActivated;
+    private boolean AIActivated = true;
 
     public SpellingEntityBase(String name, double maxHealth, double maxSpeed, EntityType type){
         this.name = name;
         this.maxHealth = maxHealth;
-        this.maxSpeed = maxSpeed;
+        this.speed = maxSpeed;
         this.type = type;
         setupAI();
     }
     public void spawn(Location spawnLocation){
         this.spawnLocation = spawnLocation;
         this.entity = (LivingEntity)spawnLocation.getWorld().spawnEntity(spawnLocation, type);
-        this.entity.setAI(false);
+        this.entity.setAI(true);
     }
     public void kill(){
         this.entity.setHealth(0);
@@ -68,8 +70,8 @@ public class SpellingEntityBase {
     public boolean isAITrue(){
         return this.AIActivated;
     }
-    public double getMaxSpeed(){
-        return this.maxSpeed;
+    public double getSpeed(){
+        return this.speed;
     }
     public LivingEntity getEntity(){
         return this.entity;
@@ -92,21 +94,30 @@ public class SpellingEntityBase {
         this.AIActivated = ai;
     }
     public void setMaxSpeed(double maxSpeed){
-        this.maxSpeed = maxSpeed;
+        this.speed = maxSpeed;
     }
     public void setAI(BukkitRunnable ai){
         this.AI = ai;
+        if(this.AI != null){
+            if(isAITrue()){
+                AI.runTaskTimer(Spelling.getSpelling(), 1, 1);
+                Bukkit.broadcastMessage("iniciou AI");
+            }
+        }
     }
 
     //UTIL
     public void goTo(Location loc){
-        ((EntityInsentient) ((CraftEntity) this.entity).getHandle()).getNavigation().a(loc.getX(), loc.getY(), loc.getZ(), getMaxSpeed());
+        net.minecraft.server.v1_11_R1.Entity bondia = ((CraftEntity)this.entity).getHandle();
+        PathEntity path = ((EntityInsentient) bondia).getNavigation().a(
+                loc.getX(), loc.getY(), loc.getZ() + 1);
+        ((EntityInsentient) bondia).getNavigation().a(path, getSpeed());
     }
 
     private void setupAI(){
         if(this.AI != null){
             if(isAITrue()){
-                AI.runTaskTimer(Spelling.getSpelling(), 0, 1);
+                AI.runTaskTimer(Spelling.getSpelling(), 1, 1);
             }
         }
     }
@@ -119,10 +130,11 @@ public class SpellingEntityBase {
         }
         Entity lastTarget = null;
         for(Entity e : targets){
-            if(lastTarget != null){
-                if(this.entity.getLocation().distance(e.getLocation()) < this.entity.getLocation().distance(lastTarget.getLocation())){
-                    lastTarget = e;
-                }
+            if(lastTarget == null){
+                lastTarget = e;
+            }
+            if(this.entity.getLocation().distance(e.getLocation()) < this.entity.getLocation().distance(lastTarget.getLocation())){
+                lastTarget = e;
             }
         }
         return lastTarget;
